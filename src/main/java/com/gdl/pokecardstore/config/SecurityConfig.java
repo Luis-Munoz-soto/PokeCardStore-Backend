@@ -34,10 +34,17 @@ public class SecurityConfig {
                                 "/auth/login",
                                 "/auth/register",
                                 "/actuator/health",
-                                "/actuator/prometheus"
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                )
+                                "/actuator/prometheus",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**")
+                        .permitAll()
+                        .requestMatchers("/Producto/**").permitAll()
+                        .requestMatchers("/usuario/**").permitAll()
+                        .requestMatchers("/venta/**").permitAll()
+                        .requestMatchers("/detalle-venta/**").permitAll()
+                        .requestMatchers("/direccion/**").permitAll()
+                        .requestMatchers("/pago/**").permitAll()
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

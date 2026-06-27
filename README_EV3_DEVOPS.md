@@ -16,10 +16,32 @@ El objetivo fue permitir la supervisión en tiempo real del estado de la aplicac
 - PostgreSQL 16
 - Docker
 - Docker Compose
+- GitHub Actions
 - Spring Boot Actuator
 - Micrometer Prometheus
 - Prometheus
 - Grafana
+
+---
+
+## Integracion Continua con GitHub Actions
+
+Se agrego un workflow de CI en:
+
+```text
+.github/workflows/ci.yml
+```
+
+El pipeline se ejecuta en cada push hacia las ramas `main`, `dev`, y en cada pull request hacia `main` y `dev`.
+
+### Validaciones del pipeline
+
+- Configura Java 21.
+- Levanta PostgreSQL 16 como servicio de GitHub Actions.
+- Ejecuta la compilacion y pruebas con Maven.
+- Analiza calidad y seguridad del codigo con SonarCloud.
+- Construye la imagen Docker del backend.
+- Valida la configuracion de Docker Compose.
 
 ---
 

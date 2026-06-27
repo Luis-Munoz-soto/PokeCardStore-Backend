@@ -39,6 +39,7 @@ public class UsuarioService {
     }
 
     public LoginResponse login(LoginRequest request) {
+
         UsuarioEntity usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -48,9 +49,14 @@ public class UsuarioService {
 
         String token = jwtService.generateToken(usuario.getEmail());
 
-        return new LoginResponse(token);
+        return new LoginResponse(
+                token,
+                usuario.getIdUsuario(),
+                usuario.getNombre(),
+                usuario.getApellido(),
+                usuario.getEmail(),
+                usuario.getRut());
     }
-
 
     public UsuarioEntity findById(Long id) {
         return usuarioRepository.findById(id)
@@ -62,35 +68,19 @@ public class UsuarioService {
 
         if (request.getNombre() != null && !request.getNombre().isBlank()) {
             usuario.setNombre(request.getNombre());
-        } else {
-            throw new IllegalArgumentException("El nombre es obligatorio");
         }
 
         if (request.getApellido() != null && !request.getApellido().isBlank()) {
             usuario.setApellido(request.getApellido());
-        } else {
-            throw new IllegalArgumentException("El apellido es obligatorio");
-        }
-
-        if (request.getRut() != null && !request.getRut().isBlank()) {
-            usuario.setRut(request.getRut());
-        } else {
-            throw new IllegalArgumentException("El RUT es obligatorio");
-        }
-
-        if (request.getEmail() != null && !request.getEmail().isBlank()) {
-            usuario.setEmail(request.getEmail());
-        } else {
-            throw new IllegalArgumentException("El email es obligatorio");
         }
 
         if (request.getContraseña() != null && !request.getContraseña().isEmpty()) {
             usuario.setContraseña(passwordEncoder.encode(request.getContraseña()));
         }
 
+        // No actualizar email ni RUT, se mantienen como están
         return usuarioRepository.save(usuario);
     }
-
     public void delete(Long id) {
         UsuarioEntity usuario = findById(id);
         usuarioRepository.delete(usuario);
