@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: pokecard-postgres
+    environment:
+      POSTGRES_DB: pokecardstore
+      POSTGRES_USER: pokecardstore_user
+      POSTGRES_PASSWORD: pokecardstore_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pokecard-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pokecardstore
+      SPRING_DATASOURCE_USERNAME: pokecardstore_user
+      SPRING_DATASOURCE_PASSWORD: pokecardstore_pass
+      JWT_SECRET: Nf72KpA9xQmL48vZsP1rC6tBqW9uH3yTgR5eV8bM2nJ4kL7wXcD6sQ1pF8zB3a
+      JWT_EXPIRATION: 3600000
+    depends_on:
+      - postgres
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: pokecard-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - backend
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: pokecard-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: devops
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  postgres_data:
+  grafana_data:

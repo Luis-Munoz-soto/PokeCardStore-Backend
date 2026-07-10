@@ -5,9 +5,12 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.DynamicUpdate;
+
+@DynamicUpdate
 @Entity
 @Table(name = "productos")
-public class Producto {
+public class ProductoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,9 +39,9 @@ public class Producto {
     @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
-    public Producto() {}
+    public ProductoEntity() {}
 
-    public Producto(String nombre, BigDecimal precio, Integer stock, String img) {
+    public ProductoEntity(String nombre, BigDecimal precio, Integer stock, String img) {
         this.nombre = nombre;
         this.precio = precio;
         this.stock = stock;

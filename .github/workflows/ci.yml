@@ -1,0 +1,74 @@
+name: PokeCardStore Backend CI/CD
+
+on:
+  push:
+    branches: [main, dev, luisDevops]
+  pull_request:
+    branches: [main, dev]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Compilar, probar, seguridad y validacion
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: pokecardstore
+          POSTGRES_USER: pokecardstore_user
+          POSTGRES_PASSWORD: pokecardstore_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U pokecardstore_user -d pokecardstore"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/pokecardstore
+      SPRING_DATASOURCE_USERNAME: pokecardstore_user
+      SPRING_DATASOURCE_PASSWORD: pokecardstore_pass
+      JWT_SECRET: Nf72KpA9xQmL48vZsP1rC6tBqW9uH3yTgR5eV8bM2nJ4kL7wXcD6sQ1pF8zB3a
+      JWT_EXPIRATION: 3600000
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Dar permisos al wrapper de Maven
+        run: chmod +x mvnw
+
+      - name: Compilar y ejecutar pruebas con Maven
+        run: ./mvnw -B clean verify
+
+      - name: Analizar calidad con SonarCloud
+        if: github.actor != 'dependabot[bot]' && env.SONAR_TOKEN != '' && env.SONAR_PROJECT_KEY != '' && env.SONAR_ORGANIZATION != ''
+        run: >
+          ./mvnw -B sonar:sonar
+          -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+          -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.token=${{ env.SONAR_TOKEN }}
+
+      - name: Construir imagen Docker
+        run: docker build -t pokecardstore-backend:ci .
+
+      - name: Validar archivo Docker Compose
+        run: docker compose config

@@ -10,8 +10,8 @@ public class UsuarioEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_cliente")
-    private Long idCliente;
+    @Column(name = "id_usuario")
+    private Long idUsuario;
 
     @Email(message = "El email no es válido")
     @NotBlank(message = "El email es obligatorio")
@@ -56,12 +56,12 @@ public class UsuarioEntity {
         fechaModificacion = LocalDateTime.now();
     }
 
-    public Long getIdCliente() {
-        return idCliente;
+    public Long getIdUsuario() {
+        return idUsuario;
     }
 
-    public void setIdCliente(Long idCliente) {
-        this.idCliente = idCliente;
+    public void setIdUsuario(Long idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
     public String getEmail() {
@@ -131,7 +131,7 @@ public class UsuarioEntity {
     @Override
     public String toString() {
         return "UsuarioEntity{" +
-                "idCliente=" + idCliente +
+                "idUsuario=" + idUsuario +
                 ", email='" + email + '\'' +
                 ", nombre='" + nombre + '\'' +
                 ", apellido='" + apellido + '\'' +
