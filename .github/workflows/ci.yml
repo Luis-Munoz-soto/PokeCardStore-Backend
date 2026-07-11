@@ -1,14 +1,22 @@
+#nombre del workflow
 name: PokeCardStore Backend CI/CD
 
+#ejecucion del pipeline
 on:
+
+  #se ejecuta cuando hay un push 
   push:
     branches: [main, dev, luisDevops]
+
+    #se ejecuta cuando hay un PR 
   pull_request:
     branches: [main, dev]
 
+#permisos de lectura
 permissions:
   contents: read
 
+#Definicion de los trabajos
 jobs:
   quality:
     name: Compilar, probar, seguridad y validacion
@@ -62,7 +70,7 @@ jobs:
         if: github.actor != 'dependabot[bot]'
         uses: SonarSource/sonarqube-scan-action@v6
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
 
       - name: Construir imagen Docker
         run: docker build -t pokecardstore-backend:ci .
